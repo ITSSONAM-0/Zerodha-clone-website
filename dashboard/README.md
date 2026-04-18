@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Zerodha Clone - Trading Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The **Dashboard** is the core functional module of the Zerodha Clone project. It provides an interactive interface for users to track stocks, manage their portfolio, and execute trades in real-time.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Overview
+Unlike the static marketing frontend, the Dashboard is a dynamic Single Page Application (SPA) that actively communicates with the Backend API to provide live feedback on investments and market trends.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Tech Stack
+- **Framework**: React.js (v18+)
+- **UI Library**: Material UI (MUI) for icons, tooltips, and layouts.
+- **Charts**: `Chart.js` via `react-chartjs-2` for portfolio and stock visualization.
+- **State Management**: React Context API (`GeneralContext`).
+- **HTTP Client**: Axios (for Backend API calls).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 📂 Project Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```text
+dashboard/
+├── public/              # Static assets
+├── src/
+│   ├── components/      # UI Modules
+│   │   ├── WatchList.js      # Left-side stock tracker
+│   │   ├── Holdings.js       # Permanent stock portfolio
+│   │   ├── Positions.js      # Active intra-day trades
+│   │   ├── Orders.js         # Transaction history
+│   │   ├── Summary.js        # Main portfolio overview
+│   │   ├── BuyActionWindow.js # Order placement modal
+│   │   └── GeneralContext.js # Global state & modal management
+│   ├── data/            # Local mock data for testing
+│   ├── index.js         # Application entry
+│   └── index.css        # Dashboard-specific styles
+└── package.json         # Dependencies
+```
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🔄 Workflow: Frontend & Backend Interaction
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The Dashboard acts as the bridge between the user and the MongoDB database. Here is how the data flows:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 1. Data Loading (Read)
+When a user opens the **Holdings** or **Positions** tabs:
+- The component uses `useEffect` to trigger an **Axios GET** request to the Backend.
+- `GET http://localhost:3002/allHoldings` or `allPositions`.
+- The Backend fetches data from MongoDB and sends it back as JSON.
+- React updates the state and renders the tables and charts (`Holdings.js` -> `VerticalGraph.js`).
 
-### `npm run eject`
+### 2. Order Execution (Write)
+When a user wants to buy a stock:
+1.  **WatchList**: User hovers over a stock in the sidebar and clicks the **"Buy"** button.
+2.  **Context**: `GeneralContext` triggers the `openBuyWindow` function, passing the stock's UID.
+3.  **UI**: The `BuyActionWindow` popup appears on the screen.
+4.  **API Call**: When the user clicks "Buy" in the modal, an **Axios POST** request is sent.
+    - `POST http://localhost:3002/newOrder` with payload `{ name, qty, price, mode: "BUY" }`.
+5.  **Database**: The Backend saves this order into the `orders` collection in MongoDB.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. Real-time Visualization
+- **Doughnut Charts**: Used in `WatchList` to show the price distribution of tracked stocks.
+- **Vertical Bars**: Used in `Holdings` to show individual stock performance vs. investment value.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## ⚙️ Setup & Running
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 1. Installation
+```bash
+cd dashboard
+npm install
+```
 
-## Learn More
+### 2. Start Project
+```bash
+npm start
+```
+*Note: If the landing page (frontend) is already running on port 3000, React will ask to run the Dashboard on port 3001. Type 'Y' to confirm.*
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## ✨ Features
+- **Dynamic Watchlist**: Hover effects with quick-action buttons (Buy, Sell, Analytics).
+- **Comprehensive Summary**: High-level view of account balance and total P&L.
+- **Material UI Integration**: Professional tooltips, smooth transitions, and premium icons.
+- **Responsive Tables**: Clean alignment of financial data (Qty, Avg Cost, LTP, P&L).
